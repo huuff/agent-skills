@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "claude-plugins": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786996661,
+        "narHash": "sha256-k6KOet4aH1fq34s9CS1O2kN2HH6Vpp/JM72efRfvIMA=",
+        "owner": "anthropics",
+        "repo": "claude-plugins-official",
+        "rev": "8aa2f06489538f7b4eb660f47731f84edacf006f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "anthropics",
+        "repo": "claude-plugins-official",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -20,6 +36,22 @@
         "type": "github"
       }
     },
+    "i-have-adhd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786988294,
+        "narHash": "sha256-8NQ9mrzY/EPcK4niuK/DqKSeIORRTy5rD9H+v1xvEa8=",
+        "owner": "ayghri",
+        "repo": "i-have-adhd",
+        "rev": "7680cebf7e0ee3bdd5f7c44104baab573b6b3d5d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ayghri",
+        "repo": "i-have-adhd",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1786862985,
@@ -36,10 +68,80 @@
         "type": "github"
       }
     },
+    "playwright-cli": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786646365,
+        "narHash": "sha256-zu+3RAaj7i4oSCuiqWsqHvttCQjg7b+CXHksgBIk7Gc=",
+        "owner": "microsoft",
+        "repo": "playwright-cli",
+        "rev": "4f9d85a9472fc6d0c9a91ac62f3f3ecc24c16de2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "microsoft",
+        "repo": "playwright-cli",
+        "type": "github"
+      }
+    },
+    "ponytail": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786139041,
+        "narHash": "sha256-bGdXvzhWPwGdz3T2Yh2h6lf+3PBRFAfdBxP5pESmCHI=",
+        "owner": "DietrichGebert",
+        "repo": "ponytail",
+        "rev": "2ed6c52c9d7e5e56942508591085fd45dea277d3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DietrichGebert",
+        "repo": "ponytail",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
+        "claude-plugins": "claude-plugins",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "i-have-adhd": "i-have-adhd",
+        "nixpkgs": "nixpkgs",
+        "playwright-cli": "playwright-cli",
+        "ponytail": "ponytail",
+        "sentry-cli": "sentry-cli",
+        "superpowers": "superpowers"
+      }
+    },
+    "sentry-cli": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786996111,
+        "narHash": "sha256-hEBpN5q+wl2xW4tz+bwq81Tz9rBiYtE9/KVAAwETb0U=",
+        "owner": "getsentry",
+        "repo": "cli",
+        "rev": "087b05bdd3509ca166b752b2f33eda0936da1421",
+        "type": "github"
+      },
+      "original": {
+        "owner": "getsentry",
+        "repo": "cli",
+        "type": "github"
+      }
+    },
+    "superpowers": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786553601,
+        "narHash": "sha256-EsGNO0dULWf5Bx6bGrCv2kI2Z8aKH0kRvGiuN23wChQ=",
+        "owner": "obra",
+        "repo": "superpowers",
+        "rev": "b36e0829c6d0140e93cfef2ca599b1b07d4a7797",
+        "type": "github"
+      },
+      "original": {
+        "owner": "obra",
+        "repo": "superpowers",
+        "type": "github"
       }
     }
   },

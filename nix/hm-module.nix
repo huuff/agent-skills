@@ -49,6 +49,12 @@ in
     claude-code = mkHarnessOption "Claude Code" ".claude/skills";
     codex = mkHarnessOption "Codex" ".agents/skills";
     opencode = mkHarnessOption "OpenCode" ".config/opencode/skills";
+
+    extraSkills = lib.mkOption {
+      type = lib.types.attrsOf lib.types.path;
+      default = { };
+      description = "Extra skills (name → source directory) installed into the same harness directories.";
+    };
   };
 
   config.home.file = lib.listToAttrs (
@@ -58,6 +64,10 @@ in
         name = "${directory}/${name}";
         value.source = "${cfg.package}/share/skills/${name}";
       }) skillNames
+      ++ lib.mapAttrsToList (name: source: {
+        name = "${directory}/${name}";
+        value.source = source;
+      }) cfg.extraSkills
     ) enabledDirectories
   );
 }
