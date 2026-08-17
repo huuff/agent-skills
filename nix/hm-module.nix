@@ -29,13 +29,9 @@ let
       };
     };
 
-  enabledDirectories = map (harness: harness.directory) (
-    lib.filter (harness: harness.enable) [
-      cfg.claude-code
-      cfg.codex
-      cfg.opencode
-    ]
-  );
+  enabledHarnesses = lib.filterAttrs (_: harness: harness.enable) {
+    inherit (cfg) claude-code codex opencode;
+  };
 in
 {
   options.programs.agent-skills = {
@@ -51,23 +47,50 @@ in
     opencode = mkHarnessOption "OpenCode" ".config/opencode/skills";
 
     extraSkills = lib.mkOption {
-      type = lib.types.attrsOf lib.types.path;
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            source = lib.mkOption {
+              type = lib.types.path;
+              description = "Directory containing the skill.";
+            };
+
+            harnesses = lib.mkOption {
+              type = lib.types.listOf (
+                lib.types.enum [
+                  "claude-code"
+                  "codex"
+                  "opencode"
+                ]
+              );
+              default = [
+                "claude-code"
+                "codex"
+                "opencode"
+              ];
+              description = "Harnesses the skill installs into (intersected with the enabled ones).";
+            };
+          };
+        }
+      );
       default = { };
-      description = "Extra skills (name → source directory) installed into the same harness directories.";
+      description = "Extra skills installed into the same harness directories.";
     };
   };
 
   config.home.file = lib.listToAttrs (
-    lib.concatMap (
-      directory:
-      map (name: {
-        name = "${directory}/${name}";
-        value.source = "${cfg.package}/share/skills/${name}";
-      }) skillNames
-      ++ lib.mapAttrsToList (name: source: {
-        name = "${directory}/${name}";
-        value.source = source;
-      }) cfg.extraSkills
-    ) enabledDirectories
+    lib.concatLists (
+      lib.mapAttrsToList (
+        harnessName: harness:
+        map (name: {
+          name = "${harness.directory}/${name}";
+          value.source = "${cfg.package}/share/skills/${name}";
+        }) skillNames
+        ++ lib.mapAttrsToList (name: extra: {
+          name = "${harness.directory}/${name}";
+          value.source = extra.source;
+        }) (lib.filterAttrs (_: extra: lib.elem harnessName extra.harnesses) cfg.extraSkills)
+      ) enabledHarnesses
+    )
   );
 }

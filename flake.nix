@@ -98,26 +98,41 @@
                   homeDirectory = "/home/vibes";
                   stateVersion = "25.11";
                 };
-                # real package is unfree; any package satisfies the eval-only check
-                programs.claude-code = {
-                  enable = true;
-                  package = pkgs.hello;
-                };
-                programs.agent-skills = {
-                  package = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
-                  claude-code.enable = true;
+                programs = {
+                  # real packages are unfree; any package satisfies the eval-only check
+                  claude-code = {
+                    enable = true;
+                    package = pkgs.hello;
+                  };
                   codex = {
                     enable = true;
-                    directory = ".config/codex-test/skills";
+                    package = pkgs.hello;
                   };
-                  opencode.enable = true;
-                  skills = {
-                    playwright-cli.enable = true;
-                    sentry-cli.enable = true;
-                    i-have-adhd.enable = true;
-                    claude-plugins = [ "frontend-design" ];
-                    superpowers.enable = true;
-                    ponytail.enable = true;
+                  agent-skills = {
+                    package = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+                    claude-code.enable = true;
+                    codex = {
+                      enable = true;
+                      directory = ".config/codex-test/skills";
+                    };
+                    opencode.enable = true;
+                    skills = {
+                      playwright-cli = {
+                        enable = true;
+                        harnesses = [ "claude-code" ];
+                      };
+                      sentry-cli.enable = true;
+                      i-have-adhd.enable = true;
+                      claude-plugins = [ "frontend-design" ];
+                      superpowers.enable = true;
+                      ponytail = {
+                        enable = true;
+                        harnesses = [
+                          "claude-code"
+                          "codex"
+                        ];
+                      };
+                    };
                   };
                 };
               }
