@@ -111,7 +111,7 @@
                     directory = ".config/codex-test/skills";
                   };
                   opencode.enable = true;
-                  extras = {
+                  skills = {
                     playwright-cli.enable = true;
                     sentry-cli.enable = true;
                     i-have-adhd.enable = true;

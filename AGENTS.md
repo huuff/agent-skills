@@ -10,7 +10,7 @@ symlinks every skill into the configured harnesses' skill directories
   package and module pick up directories automatically.
 - Third-party skills and Claude Code plugins (superpowers, ponytail, ...) are
   non-flake inputs wired in `nix/extras.nix` and enabled via
-  `programs.agent-skills.extras.*`. Update with `nix flake update <input>`.
+  `programs.agent-skills.skills.*`. Update with `nix flake update <input>`.
 - Skills must stay harness-agnostic: no Claude/Codex-specific instructions.
 - Verify: `nix flake check --no-build` (also runs as `devenv test`).
 - Dev shell: `devenv shell` (or `direnv allow`); git hooks install on entry.

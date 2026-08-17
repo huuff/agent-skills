@@ -9,7 +9,7 @@
 }:
 
 let
-  cfg = config.programs.agent-skills.extras;
+  cfg = config.programs.agent-skills.skills;
 
   plugins =
     lib.optionalAttrs cfg.superpowers.enable { inherit (sources) superpowers; }
@@ -24,7 +24,7 @@ let
     };
 in
 {
-  options.programs.agent-skills.extras = {
+  options.programs.agent-skills.skills = {
     playwright-cli.enable = lib.mkEnableOption "the playwright-cli skill";
     sentry-cli.enable = lib.mkEnableOption "the sentry-cli skill";
     i-have-adhd.enable = lib.mkEnableOption "the i-have-adhd skill";
