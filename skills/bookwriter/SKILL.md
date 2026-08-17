@@ -1,6 +1,7 @@
 ---
 name: bookwriter
 description: Write a full book about a topic in Typst and compile it to PDF, keeping the source. Books get a title page, TOC, chapters with worked examples and figures, real cited references, and in-depth advanced sections near the end. Use when the user runs /bookwriter or asks to write a book, ebook, guide, or manual about some topic.
+disable-model-invocation: true
 ---
 
 # Bookwriter
@@ -134,6 +135,15 @@ Everything must compile offline-ish and be reproducible from source:
 - Cross-reference figures/headings with `<label>` + `@label`.
 - Citation keys are bare `@key` in prose; a key that's not in
   `references.yml` is a compile warning — don't ship with warnings.
+
+## Red flags — stop and correct
+
+- A citation you can't place to a work you *know* exists — cut it or swap in a
+  real one. Never ship a guessed author, title, or year.
+- More than one chapter written since the last compile — compile now; errors
+  localize per-file, not after 60 pages.
+- Background/prerequisite chapters creeping toward half the outline — cut
+  background, deepen the core chapters instead.
 
 ## Delivery
 

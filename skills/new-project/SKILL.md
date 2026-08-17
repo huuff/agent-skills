@@ -1,20 +1,16 @@
 ---
 name: new-project
 description: Scaffold a new project with a Nix flake export, a standalone devenv shell, pre-commit hooks (secret scanning, static analysis, Conventional Commits), and agent instructions. Use when the user asks to create, bootstrap, or scaffold a new project.
+disable-model-invocation: true
 ---
 
 # New project scaffold
 
 Creates a project that is simultaneously:
 
-1. **A flake** — consumable from nix. It always exports *something* useful, but
-   **what** depends on the project: a build (`packages.default` +
-   `overlays.default`) only when the project actually produces a buildable
-   artifact. For config-only projects (Terraform/OpenTofu, dotfiles, plain
-   scripts, docs) a `packages.default` that just copies the files into the store
-   is useless — export `nixosModules`/`homeManagerModules`/`lib`, dev tooling,
-   or nothing at all instead. When unsure whether a package export makes sense,
-   **ask the user**. See step 3.
+1. **A flake** — consumable from nix. It always exports *something* useful,
+   but **what** depends on the project; step 3 decides whether that's a
+   package or modules/`lib`.
 2. **A devenv shell** — standalone (`devenv.yaml` + `devenv.nix` + `devenv.lock`),
    deliberately **not** via the flake's `devShells`. Rationale: the flake
    integration needs `--impure`, ties devenv to the flake's nixpkgs, and
@@ -158,27 +154,5 @@ bypass with `--no-verify`.
 Tell the user: enter with `devenv shell` (or `direnv allow` for automatic
 activation) and consume the project via its `github:<owner>/<repo>` flake ref.
 
-## Scripts: bash vs nushell
-
-devenv `scripts.*` run with bash by default. Keep bash for trivial one-line
-exec wrappers. When a script has real logic — filtering lists, parsing
-JSON/structured output, or more than a couple of conditionals — write it in
-nushell instead; it will usually be clearer.
-
-```nix
-scripts.my-script = {
-  package = pkgs.nushell; # binary defaults to meta.mainProgram = "nu"
-  exec = ''
-    http get https://api.example.com/items | where size > 10mb | to md
-  '';
-};
-```
-
-Nushell-specific notes:
-
-- A script that receives CLI arguments needs `def --wrapped main [...args]`;
-  `--wrapped` stops nu from parsing flags meant for the wrapped command.
-- Nu interpolation is `$"(...)"`, which doesn't collide with nix `''...''`
-  strings — no `''${}` escaping needed, unlike bash.
-- Nu `mkdir` already has `mkdir -p` semantics: creates parents, no error if
-  the directory exists (there is no `-p` flag).
+If the scaffold includes any devenv `scripts.*`, follow the devenv-scripts
+skill for choosing bash vs nushell.
