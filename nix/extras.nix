@@ -29,7 +29,7 @@ in
     sentry-cli.enable = lib.mkEnableOption "the sentry-cli skill";
     i-have-adhd.enable = lib.mkEnableOption "the i-have-adhd skill";
 
-    claude-plugins.skills = lib.mkOption {
+    claude-plugins = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
       example = [ "frontend-design" ];
@@ -55,7 +55,7 @@ in
       // lib.listToAttrs (
         map (
           name: lib.nameValuePair name "${sources.claude-plugins}/plugins/${name}/skills/${name}"
-        ) cfg.claude-plugins.skills
+        ) cfg.claude-plugins
       );
 
     programs.claude-code.plugins = lib.mkIf (plugins != { }) plugins;

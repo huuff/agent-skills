@@ -115,7 +115,7 @@
                     playwright-cli.enable = true;
                     sentry-cli.enable = true;
                     i-have-adhd.enable = true;
-                    claude-plugins.skills = [ "frontend-design" ];
+                    claude-plugins = [ "frontend-design" ];
                     superpowers.enable = true;
                     ponytail.enable = true;
                   };
