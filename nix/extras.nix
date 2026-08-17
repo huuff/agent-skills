@@ -60,7 +60,8 @@ let
     }
     // lib.optionalAttrs (cfg.ponytail.enable && lib.elem harness cfg.ponytail.harnesses) {
       # hooks invoke bare `node`, which we keep off global PATH
-      ponytail = pkgs.runCommand "ponytail-plugin" { } ''
+      # the drv name is user-visible: codex derives the plugin id from it
+      ponytail = pkgs.runCommand "ponytail" { } ''
         cp -r ${sources.ponytail} $out
         chmod -R u+w $out
         substituteInPlace $out/hooks/claude-codex-hooks.json \
