@@ -115,11 +115,11 @@
     "sentry-cli": {
       "flake": false,
       "locked": {
-        "lastModified": 1786996111,
-        "narHash": "sha256-hEBpN5q+wl2xW4tz+bwq81Tz9rBiYtE9/KVAAwETb0U=",
+        "lastModified": 1787001342,
+        "narHash": "sha256-31b9rrICQXMzR6ZQxfTNT2BzvPmmrF0qni60BiIjSrk=",
         "owner": "getsentry",
         "repo": "cli",
-        "rev": "087b05bdd3509ca166b752b2f33eda0936da1421",
+        "rev": "d38b68a213b32e079a04e1b2b61974f538b073a0",
         "type": "github"
       },
       "original": {
