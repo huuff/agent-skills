@@ -132,6 +132,11 @@ is, how to build/test it, and any conventions an agent must follow.
 Don't duplicate what the code or scaffold already makes obvious. Commit
 both the file and the symlink.
 
+Include this one line about devenv scripts:
+
+> devenv `scripts.*` with real logic: use nushell (`package = pkgs.nushell`);
+> CLI args need `def --wrapped main [...args]`, interpolation is `$"(...)"`.
+
 ### 6. Initialize and verify
 
 ```bash
@@ -153,6 +158,3 @@ bypass with `--no-verify`.
 
 Tell the user: enter with `devenv shell` (or `direnv allow` for automatic
 activation) and consume the project via its `github:<owner>/<repo>` flake ref.
-
-If the scaffold includes any devenv `scripts.*`, follow the devenv-scripts
-skill for choosing bash vs nushell.
