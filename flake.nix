@@ -88,56 +88,61 @@
         # harness option and every extra. `nix flake check --no-build`
         # catches regressions.
         hm-skills =
-          (home-manager.lib.homeManagerConfiguration {
-            inherit pkgs;
-            modules = [
-              self.homeManagerModules.default
-              {
-                home = {
-                  username = "vibes";
-                  homeDirectory = "/home/vibes";
-                  stateVersion = "25.11";
-                };
-                programs = {
-                  # real packages are unfree; any package satisfies the eval-only check
-                  claude-code = {
-                    enable = true;
-                    package = pkgs.hello;
+          let
+            evaluated = home-manager.lib.homeManagerConfiguration {
+              inherit pkgs;
+              modules = [
+                self.homeManagerModules.default
+                {
+                  home = {
+                    username = "vibes";
+                    homeDirectory = "/home/vibes";
+                    stateVersion = "25.11";
                   };
-                  codex = {
-                    enable = true;
-                    package = pkgs.hello;
-                  };
-                  agent-skills = {
-                    package = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
-                    claude-code.enable = true;
+                  programs = {
+                    # real packages are unfree; any package satisfies the eval-only check
+                    claude-code = {
+                      enable = true;
+                      package = pkgs.hello;
+                    };
                     codex = {
                       enable = true;
-                      directory = ".config/codex-test/skills";
+                      package = pkgs.hello;
                     };
-                    opencode.enable = true;
-                    skills = {
-                      playwright-cli = {
+                    agent-skills = {
+                      package = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+                      claude-code.enable = true;
+                      codex = {
                         enable = true;
-                        harnesses = [ "claude-code" ];
+                        directory = ".config/codex-test/skills";
                       };
-                      sentry-cli.enable = true;
-                      i-have-adhd.enable = true;
-                      claude-plugins = [ "frontend-design" ];
-                      superpowers.enable = true;
-                      ponytail = {
-                        enable = true;
-                        harnesses = [
-                          "claude-code"
-                          "codex"
-                        ];
+                      opencode.enable = true;
+                      skills = {
+                        playwright-cli = {
+                          enable = true;
+                          harnesses = [ "claude-code" ];
+                        };
+                        sentry-cli.enable = true;
+                        i-have-adhd.enable = true;
+                        claude-plugins = [ "frontend-design" ];
+                        superpowers.enable = true;
+                        ponytail.enable = true;
                       };
                     };
                   };
-                };
-              }
-            ];
-          }).activationPackage;
+                }
+              ];
+            };
+          in
+          assert builtins.elem inputs.superpowers evaluated.config.programs.codex.plugins;
+          assert builtins.any (
+            plugin: pkgs.lib.getName plugin == "ponytail"
+          ) evaluated.config.programs.codex.plugins;
+          assert builtins.elem inputs.superpowers evaluated.config.programs.opencode.settings.plugin;
+          assert builtins.any (
+            plugin: pkgs.lib.getName plugin == "ponytail"
+          ) evaluated.config.programs.opencode.settings.plugin;
+          evaluated.activationPackage;
       });
     };
 }

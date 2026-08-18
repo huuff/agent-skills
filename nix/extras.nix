@@ -27,19 +27,14 @@ let
     };
   };
 
-  # full plugins (hooks, commands), not plain skills; claude-code and codex
-  # consume the same plugin format
+  # Full plugins (hooks, commands), not plain skills. Each harness registers
+  # the source through its native plugin mechanism.
   mkPluginOption = name: {
     enable = lib.mkEnableOption "the ${name} plugin";
 
     harnesses = lib.mkOption {
-      type = lib.types.listOf (
-        lib.types.enum [
-          "claude-code"
-          "codex"
-        ]
-      );
-      default = [ "claude-code" ];
+      type = lib.types.listOf (lib.types.enum allHarnesses);
+      default = allHarnesses;
       description = "Harnesses the plugin is registered with.";
     };
   };
@@ -71,6 +66,7 @@ let
 
   claudePlugins = pluginFor "claude-code";
   codexPlugins = pluginFor "codex";
+  opencodePlugins = lib.attrValues (pluginFor "opencode");
 in
 {
   options.programs.agent-skills.skills = {
@@ -105,5 +101,6 @@ in
 
     claude-code.plugins = lib.mkIf (claudePlugins != { }) claudePlugins;
     codex.plugins = lib.mkIf (codexPlugins != { }) (lib.attrValues codexPlugins);
+    opencode.settings.plugin = lib.mkIf (opencodePlugins != [ ]) opencodePlugins;
   };
 }
