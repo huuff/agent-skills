@@ -124,7 +124,10 @@
                         };
                         sentry-cli.enable = true;
                         i-have-adhd.enable = true;
-                        claude-plugins = [ "frontend-design" ];
+                        claude-plugins.frontend-design = {
+                          enable = true;
+                          harnesses = [ "codex" ];
+                        };
                         superpowers.enable = true;
                         ponytail.enable = true;
                       };
@@ -142,6 +145,9 @@
           assert builtins.any (
             plugin: pkgs.lib.getName plugin == "ponytail"
           ) evaluated.config.programs.opencode.settings.plugin;
+          assert evaluated.config.home.file ? ".config/codex-test/skills/frontend-design";
+          assert !(evaluated.config.home.file ? ".claude/skills/frontend-design");
+          assert !(evaluated.config.home.file ? ".config/opencode/skills/frontend-design");
           evaluated.activationPackage;
       });
     };

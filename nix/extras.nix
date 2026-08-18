@@ -75,9 +75,16 @@ in
     i-have-adhd = mkSkillOption "i-have-adhd";
 
     claude-plugins = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      example = [ "frontend-design" ];
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = mkSkillOption "Claude plugin skill";
+        }
+      );
+      default = { };
+      example.frontend-design = {
+        enable = true;
+        harnesses = [ "codex" ];
+      };
       description = "Skills vendored from anthropics/claude-plugins-official (plugins/<name>/skills/<name>).";
     };
 
@@ -90,14 +97,10 @@ in
       mkExtraSkill "playwright-cli" "${sources.playwright-cli}/skills/playwright-cli"
       // mkExtraSkill "sentry-cli" "${sources.sentry-cli}/packages/cli/plugins/sentry-cli/skills/sentry-cli"
       // mkExtraSkill "i-have-adhd" "${sources.i-have-adhd}/skills/i-have-adhd"
-      // lib.listToAttrs (
-        map (
-          name:
-          lib.nameValuePair name {
-            source = "${sources.claude-plugins}/plugins/${name}/skills/${name}";
-          }
-        ) cfg.claude-plugins
-      );
+      // lib.mapAttrs (name: skill: {
+        source = "${sources.claude-plugins}/plugins/${name}/skills/${name}";
+        inherit (skill) harnesses;
+      }) (lib.filterAttrs (_: skill: skill.enable) cfg.claude-plugins);
 
     claude-code.plugins = lib.mkIf (claudePlugins != { }) claudePlugins;
     codex.plugins = lib.mkIf (codexPlugins != { }) (lib.attrValues codexPlugins);
