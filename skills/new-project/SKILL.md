@@ -127,6 +127,14 @@ and harness-specific names are symlinks into it:
 ln -s AGENTS.md CLAUDE.md
 ```
 
+The same rule applies to agent directories: the canonical directory is
+`.agents/` (e.g. repo-local skills in `.agents/skills/`), and
+harness-specific directories are symlinks to it:
+
+```bash
+ln -s .agents .claude
+```
+
 Write a short `AGENTS.md` (a few lines, not a manual): what the project
 is, how to build/test it, and any conventions an agent must follow.
 Don't duplicate what the code or scaffold already makes obvious. Commit
