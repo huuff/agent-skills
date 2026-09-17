@@ -33,6 +33,10 @@
       url = "github:anthropics/claude-plugins-official";
       flake = false;
     };
+    security-audit = {
+      url = "github:cloudflare/security-audit-skill";
+      flake = false;
+    };
   };
 
   outputs =
@@ -70,6 +74,7 @@
               sentry-cli
               i-have-adhd
               claude-plugins
+              security-audit
               ;
           };
         };
@@ -124,6 +129,7 @@
                         };
                         sentry-cli.enable = true;
                         i-have-adhd.enable = true;
+                        security-audit.enable = true;
                         claude-plugins.frontend-design = {
                           enable = true;
                           harnesses = [ "codex" ];
@@ -148,6 +154,18 @@
           assert evaluated.config.home.file ? ".config/codex-test/skills/frontend-design";
           assert !(evaluated.config.home.file ? ".claude/skills/frontend-design");
           assert !(evaluated.config.home.file ? ".config/opencode/skills/frontend-design");
+          assert builtins.all
+            (
+              directory:
+              evaluated.config.home.file."${directory}/security-audit".source
+              == "${inputs.security-audit}/skills/security-audit"
+            )
+            [
+              ".claude/skills"
+              ".config/codex-test/skills"
+              ".config/opencode/skills"
+            ];
+          assert builtins.pathExists "${inputs.security-audit}/skills/security-audit/SKILL.md";
           evaluated.activationPackage;
       });
     };

@@ -73,6 +73,7 @@ in
     playwright-cli = mkSkillOption "playwright-cli";
     sentry-cli = mkSkillOption "sentry-cli";
     i-have-adhd = mkSkillOption "i-have-adhd";
+    security-audit = mkSkillOption "Cloudflare security-audit";
 
     claude-plugins = lib.mkOption {
       type = lib.types.attrsOf (
@@ -97,6 +98,7 @@ in
       mkExtraSkill "playwright-cli" "${sources.playwright-cli}/skills/playwright-cli"
       // mkExtraSkill "sentry-cli" "${sources.sentry-cli}/packages/cli/plugins/sentry-cli/skills/sentry-cli"
       // mkExtraSkill "i-have-adhd" "${sources.i-have-adhd}/skills/i-have-adhd"
+      // mkExtraSkill "security-audit" "${sources.security-audit}/skills/security-audit"
       // lib.mapAttrs (name: skill: {
         source = "${sources.claude-plugins}/plugins/${name}/skills/${name}";
         inherit (skill) harnesses;
