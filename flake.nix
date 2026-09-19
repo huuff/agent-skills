@@ -37,6 +37,10 @@
       url = "github:cloudflare/security-audit-skill";
       flake = false;
     };
+    matt-pocock-skills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
   };
 
   outputs =
@@ -75,6 +79,7 @@
               i-have-adhd
               claude-plugins
               security-audit
+              matt-pocock-skills
               ;
           };
         };
@@ -130,6 +135,7 @@
                         sentry-cli.enable = true;
                         i-have-adhd.enable = true;
                         security-audit.enable = true;
+                        matt-pocock.enable = true;
                         claude-plugins.frontend-design = {
                           enable = true;
                           harnesses = [ "codex" ];
@@ -166,6 +172,18 @@
               ".config/opencode/skills"
             ];
           assert builtins.pathExists "${inputs.security-audit}/skills/security-audit/SKILL.md";
+          assert builtins.all
+            (
+              directory:
+              evaluated.config.home.file."${directory}/tdd".source
+              == "${inputs.matt-pocock-skills}/skills/engineering/tdd"
+            )
+            [
+              ".claude/skills"
+              ".config/codex-test/skills"
+              ".config/opencode/skills"
+            ];
+          assert builtins.pathExists "${inputs.matt-pocock-skills}/skills/engineering/tdd/SKILL.md";
           evaluated.activationPackage;
       });
     };

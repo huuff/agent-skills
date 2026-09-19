@@ -48,6 +48,15 @@ let
       };
     };
 
+  mattPocockPlugin = builtins.fromJSON (
+    builtins.readFile "${sources.matt-pocock-skills}/.claude-plugin/plugin.json"
+  );
+  mattPocockSkillPaths = lib.listToAttrs (
+    map (
+      path: lib.nameValuePair (builtins.baseNameOf path) (lib.removePrefix "./" path)
+    ) mattPocockPlugin.skills
+  );
+
   pluginFor =
     harness:
     lib.optionalAttrs (cfg.superpowers.enable && lib.elem harness cfg.superpowers.harnesses) {
@@ -74,6 +83,7 @@ in
     sentry-cli = mkSkillOption "sentry-cli";
     i-have-adhd = mkSkillOption "i-have-adhd";
     security-audit = mkSkillOption "Cloudflare security-audit";
+    matt-pocock = mkSkillOption "Matt Pocock stable skill collection";
 
     claude-plugins = lib.mkOption {
       type = lib.types.attrsOf (
@@ -99,6 +109,12 @@ in
       // mkExtraSkill "sentry-cli" "${sources.sentry-cli}/packages/cli/plugins/sentry-cli/skills/sentry-cli"
       // mkExtraSkill "i-have-adhd" "${sources.i-have-adhd}/skills/i-have-adhd"
       // mkExtraSkill "security-audit" "${sources.security-audit}/skills/security-audit"
+      // lib.optionalAttrs cfg.matt-pocock.enable (
+        lib.mapAttrs (_name: path: {
+          source = "${sources.matt-pocock-skills}/${path}";
+          inherit (cfg.matt-pocock) harnesses;
+        }) mattPocockSkillPaths
+      )
       // lib.mapAttrs (name: skill: {
         source = "${sources.claude-plugins}/plugins/${name}/skills/${name}";
         inherit (skill) harnesses;
