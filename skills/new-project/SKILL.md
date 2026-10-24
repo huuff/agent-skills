@@ -1,31 +1,31 @@
 ---
 name: new-project
-description: Scaffold a new project with a Nix flake export, a standalone devenv shell, pre-commit hooks (secret scanning, static analysis, Conventional Commits), and agent instructions. Use when the user asks to create, bootstrap, or scaffold a new project.
+description: Scaffold a new project with a standalone devenv shell, pre-commit hooks (secret scanning, static analysis, Conventional Commits), agent instructions, and a Nix flake only when something consumes the project through nix. Use when the user asks to create, bootstrap, or scaffold a new project.
 disable-model-invocation: true
 ---
 
 # New project scaffold
 
-Creates a project that is simultaneously:
+Creates a project that is:
 
-1. **A flake** — consumable from nix. It always exports *something* useful,
-   but **what** depends on the project; step 3 decides whether that's a
-   package or modules/`lib`.
-2. **A devenv shell** — standalone (`devenv.yaml` + `devenv.nix` + `devenv.lock`),
-   deliberately **not** via the flake's `devShells`. Rationale: the flake
+1. **A devenv shell** — standalone (`devenv.yaml` + `devenv.nix` + `devenv.lock`),
+   deliberately **not** via a flake's `devShells`. Rationale: the flake
    integration needs `--impure`, ties devenv to the flake's nixpkgs, and
    restricts devenv features (containers, `devenv up` processes, its own
-   per-input lockfile). Keeping them side by side also keeps the flake minimal
+   per-input lockfile). Keeping them apart also keeps any flake minimal
    for consumers — dev tooling never leaks into the export.
-3. **Guarded by git hooks** — secrets scanning, static analysis, and
+2. **Guarded by git hooks** — secrets scanning, static analysis, and
    Conventional Commits enforcement, all managed declaratively through
    devenv's `git-hooks` module (installed automatically on shell entry).
-4. **Agent-ready** — an `AGENTS.md` (symlinked as `CLAUDE.md`) with concise
+3. **Agent-ready** — an `AGENTS.md` (symlinked as `CLAUDE.md`) with concise
    project instructions.
-5. **Secrets via sops** — if the application needs secrets at runtime, they
+4. **Secrets via sops** — if the application needs secrets at runtime, they
    are provided with [sops](https://github.com/getsops/sops) (age-encrypted,
    committed to the repo), never as plaintext files or env vars in the shell
    config. See "Runtime secrets" below.
+5. **A flake, only for nix consumers** — `flake.nix` exists only when step 1
+   finds something that installs or imports the project *through nix*. Most
+   projects have no such consumer and get no flake at all.
 
 ## Workflow
 
@@ -36,22 +36,47 @@ Needed before writing anything:
 - **Directory / project name** (kebab-case; used as `pname`).
 - **One-line description**.
 - **Language(s)** — infer from the user's request; if genuinely unknown, ask.
+- **Nix consumer** — the one observable question that decides whether a
+  `flake.nix` exists: *name the thing that will fetch this project through
+  nix.* Pick the first row that matches:
+
+  | Who consumes the project | Flake? | What it exports |
+  |---|---|---|
+  | The language's own package manager (crates.io, npm, PyPI, Go modules, Maven, Hex, …) — i.e. a **library**, SDK or framework | **No** | — |
+  | Only humans running it from a checkout (scripts, prototypes, experiments, course work) | **No** | — |
+  | Another tool reads the files (Terraform/OpenTofu, Ansible, k8s manifests, docs, dotfiles) | **No** | — |
+  | A NixOS / Home Manager config or another flake installs the **binary or app** | Yes | `packages.default` + `overlays.default` |
+  | Other nix code imports it (NixOS/HM modules, `lib`) | Yes | `nixosModules` / `homeManagerModules` / `lib`, no package |
+
+  "It's buildable" is not a consumer. A Rust/Go/Python/JS **library** is
+  consumed by its ecosystem's package manager; a nix derivation of it is
+  dead weight that no one will ever `nix build`. Same for a CLI that will
+  only ever be installed via `cargo install` / `pipx` / `npm -g`.
+
+  Write the answer down ("nix consumer: none" or "nix consumer: the user's
+  NixOS config") — the rest of the workflow branches on it. If the user's
+  request leaves it genuinely open, ask them; default to **No** when they
+  don't care.
 
 ### 2. Copy templates
 
 All templates live in `templates/` next to this file. Copy and rename:
 
-| Template | Destination |
-|---|---|
-| `templates/flake.nix` | `flake.nix` |
-| `templates/nix/package.nix` | `nix/package.nix` |
-| `templates/devenv.yaml` | `devenv.yaml` |
-| `templates/devenv.nix` | `devenv.nix` |
-| `templates/envrc` | `.envrc` |
-| `templates/gitignore` | `.gitignore` |
+| Template | Destination | When |
+|---|---|---|
+| `templates/devenv.yaml` | `devenv.yaml` | always |
+| `templates/devenv.nix` | `devenv.nix` | always |
+| `templates/envrc` | `.envrc` | always |
+| `templates/gitignore` | `.gitignore` | always |
+| `templates/flake.nix` | `flake.nix` | nix consumer = Yes |
+| `templates/nix/package.nix` | `nix/package.nix` | nix consumer = Yes, package row |
 
 Then replace every `CHANGEME_PNAME` / `CHANGEME_DESCRIPTION` placeholder and
 resolve the remaining `# CHANGEME` comments (language blocks, license).
+
+**No flake:** in `devenv.nix`, replace the `enterTest` body (`nix flake check
+--no-build`) with the language's own check (`cargo check`, `go vet ./...`,
+`npm test`, `uv run pytest`, …), and keep the `.gitignore` as is.
 
 ### 3. Adapt to the language
 
@@ -65,29 +90,21 @@ In `devenv.nix`, enable `languages.<lang>` and the matching hooks:
 | Go | `languages.go.enable = true;` | `golangci-lint`, `gofmt` |
 | Nix-only | `languages.nix.enable = true;` (already on) | already covered |
 
-First decide whether a `packages.default` even belongs here. Export a package
-**only when the project produces a real buildable artifact** (a binary, a
-library, a bundled app). For projects that are just config or files consumed by
-some other tool — Terraform/OpenTofu, Ansible, k8s manifests, dotfiles, docs —
-a derivation that copies those files into the nix store buys nothing; skip it
-and use the "Pure nix config/modules" branch below (export modules/`lib`, or
-just the devenv shell + hooks). If it's genuinely unclear which case you're in,
-**ask the user before writing `nix/package.nix`** rather than defaulting to a
-useless copy-to-store derivation.
-
-When a package does make sense, replace the stub in `nix/package.nix` with the
-right builder:
+**Flake with a package** (nix consumer installs a binary/app): replace the
+stub in `nix/package.nix` with the right builder:
 
 - Rust: `rustPlatform.buildRustPackage { cargoLock.lockFile = ../Cargo.lock; ... }`
 - Go: `buildGoModule { vendorHash = ...; ... }`
 - Python: `python3Packages.buildPythonApplication { pyproject = true; ... }`
 - Node: `buildNpmPackage { npmDepsHash = ...; ... }`
-- Pure nix config/modules: drop `nix/package.nix`, export `nixosModules` /
-  `homeManagerModules` / `lib` from the flake instead, and point
-  `checks` at an eval test or leave only formatting checks.
 
 The stub is intentionally buildable, so the scaffold passes `nix flake check`
 before any real code exists.
+
+**Flake with modules/lib** (other nix code imports it): drop
+`nix/package.nix`, remove `packages` / `overlays` from `flake.nix`, export
+`nixosModules` / `homeManagerModules` / `lib` instead, and point `checks` at
+an eval test or leave only formatting checks.
 
 ### 4. Runtime secrets with sops (skip if the app needs none)
 
@@ -150,14 +167,14 @@ Include this one line about devenv scripts:
 ```bash
 git init -b main
 devenv shell -- true        # builds the shell, writes devenv.lock, installs git hooks
-nix flake check --no-build  # flake evaluates
-devenv test                 # runs enterTest (flake evals)
+devenv test                 # runs enterTest
+nix flake check --no-build  # only if the project has a flake
 git add -A
 git commit -m "chore: scaffold project"   # must pass all hooks, incl. commitizen
 ```
 
-Commit `devenv.lock` and `flake.lock`; `.pre-commit-config.yaml` and
-`.devenv/` are generated and gitignored.
+Commit `devenv.lock` (and `flake.lock` if present); `.pre-commit-config.yaml`
+and `.devenv/` are generated and gitignored.
 
 If any hook fails on the initial commit, fix the offending file — do not
 bypass with `--no-verify`.
@@ -165,4 +182,5 @@ bypass with `--no-verify`.
 ### 7. Hand over
 
 Tell the user: enter with `devenv shell` (or `direnv allow` for automatic
-activation) and consume the project via its `github:<owner>/<repo>` flake ref.
+activation). If the project has a flake, also give the
+`github:<owner>/<repo>` flake ref its nix consumer will use.
