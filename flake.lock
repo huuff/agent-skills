@@ -3,11 +3,11 @@
     "ai-assisted-code-review": {
       "flake": false,
       "locked": {
-        "lastModified": 1792859455,
-        "narHash": "sha256-3GIxB6BZiuOXlXdgWQKH9CfJgvWjqs1gnY+rxiPDGIc=",
+        "lastModified": 1792867268,
+        "narHash": "sha256-i9cSsEfDhTwR0fiG+3fNo3c2TJM7z+diGbdz1SdyqG8=",
         "owner": "huuff",
         "repo": "ai-assisted-code-review",
-        "rev": "5f4ae4c9bdb4517a362d9696e7dc31f15a6e191f",
+        "rev": "6fceda76f789e0fafcc35c69aa8bcee703113874",
         "type": "github"
       },
       "original": {
