@@ -57,6 +57,13 @@ let
     ) mattPocockPlugin.skills
   );
 
+  # SKILL.md sits at the repo root next to devenv/flake scaffolding; ship only
+  # the skill files (mirrors upstream's own package.nix).
+  aiAssistedCodeReview = pkgs.runCommand "ai-assisted-code-review" { } ''
+    mkdir $out
+    cp ${sources.ai-assisted-code-review}/{SKILL.md,RATIONALE.md} $out/
+  '';
+
   pluginFor =
     harness:
     lib.optionalAttrs (cfg.superpowers.enable && lib.elem harness cfg.superpowers.harnesses) {
@@ -84,6 +91,7 @@ in
     i-have-adhd = mkSkillOption "i-have-adhd";
     security-audit = mkSkillOption "Cloudflare security-audit";
     matt-pocock = mkSkillOption "Matt Pocock stable skill collection";
+    ai-assisted-code-review = mkSkillOption "ai-assisted-code-review";
 
     claude-plugins = lib.mkOption {
       type = lib.types.attrsOf (
@@ -109,6 +117,7 @@ in
       // mkExtraSkill "sentry-cli" "${sources.sentry-cli}/packages/cli/plugins/sentry-cli/skills/sentry-cli"
       // mkExtraSkill "i-have-adhd" "${sources.i-have-adhd}/skills/i-have-adhd"
       // mkExtraSkill "security-audit" "${sources.security-audit}/skills/security-audit"
+      // mkExtraSkill "ai-assisted-code-review" aiAssistedCodeReview
       // lib.optionalAttrs cfg.matt-pocock.enable (
         lib.mapAttrs (_name: path: {
           source = "${sources.matt-pocock-skills}/${path}";

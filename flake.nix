@@ -41,6 +41,10 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    ai-assisted-code-review = {
+      url = "github:huuff/ai-assisted-code-review";
+      flake = false;
+    };
   };
 
   outputs =
@@ -80,6 +84,7 @@
               claude-plugins
               security-audit
               matt-pocock-skills
+              ai-assisted-code-review
               ;
           };
         };
@@ -136,6 +141,7 @@
                         i-have-adhd.enable = true;
                         security-audit.enable = true;
                         matt-pocock.enable = true;
+                        ai-assisted-code-review.enable = true;
                         claude-plugins.frontend-design = {
                           enable = true;
                           harnesses = [ "codex" ];
@@ -184,6 +190,18 @@
               ".config/opencode/skills"
             ];
           assert builtins.pathExists "${inputs.matt-pocock-skills}/skills/engineering/tdd/SKILL.md";
+          assert builtins.all
+            (
+              directory:
+              pkgs.lib.getName evaluated.config.home.file."${directory}/ai-assisted-code-review".source
+              == "ai-assisted-code-review"
+            )
+            [
+              ".claude/skills"
+              ".config/codex-test/skills"
+              ".config/opencode/skills"
+            ];
+          assert builtins.pathExists "${inputs.ai-assisted-code-review}/SKILL.md";
           evaluated.activationPackage;
       });
     };

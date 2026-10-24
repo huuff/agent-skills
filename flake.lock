@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "ai-assisted-code-review": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792859455,
+        "narHash": "sha256-3GIxB6BZiuOXlXdgWQKH9CfJgvWjqs1gnY+rxiPDGIc=",
+        "owner": "huuff",
+        "repo": "ai-assisted-code-review",
+        "rev": "5f4ae4c9bdb4517a362d9696e7dc31f15a6e191f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "huuff",
+        "repo": "ai-assisted-code-review",
+        "type": "github"
+      }
+    },
     "claude-plugins": {
       "flake": false,
       "locked": {
@@ -118,6 +134,7 @@
     },
     "root": {
       "inputs": {
+        "ai-assisted-code-review": "ai-assisted-code-review",
         "claude-plugins": "claude-plugins",
         "home-manager": "home-manager",
         "i-have-adhd": "i-have-adhd",
